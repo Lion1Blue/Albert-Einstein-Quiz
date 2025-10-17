@@ -2,11 +2,10 @@
 #include <iostream>
 
 int main() {
-  Street street{};
   Quiz quiz{};
-  if (quiz.solve(street)) {
+  if (quiz.solve()) {
     std::cout << "Lösung gefunden!\n";
-    quiz.printSolution(street);
+    quiz.printSolution();
   } else {
     std::cout << "Keine Lösung.\n";
   }

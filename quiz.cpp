@@ -166,9 +166,26 @@ class Quiz {
     return true;
   }
 
-  bool checkRule12(Street &street) {
-    if (street[1].color != Color::NOTHING) {
-      return street[0].color == Color::BLUE;
+  bool checkRule12(const Street &street) {
+    auto it = std::find_if(street.begin(), street.end(), [](const House &h) {
+      return h.nationality == Nationality::NORWAY;
+    });
+
+    if (it == street.end())
+      return true;
+
+    int idx = std::distance(street.begin(), it);
+
+    // Prüfe nur, wenn Nachbar gesetzt ist
+    if (idx > 0) {
+      if (street[idx - 1].color != Color::NOTHING &&
+          street[idx - 1].color != Color::BLUE)
+        return false;
+    }
+    if (idx < 4) {
+      if (street[idx + 1].color != Color::NOTHING &&
+          street[idx + 1].color != Color::BLUE)
+        return false;
     }
 
     return true;
@@ -203,26 +220,23 @@ class Quiz {
     return true;
   }
 
-  bool checkRule15(Street &street) {
-    if (street[2].drink != Drink::NOTHING) {
-      return street[0].drink == Drink::MILK;
-    }
-
+  bool checkRule15(const Street &street) {
+    if (street[2].drink != Drink::NOTHING)
+      return street[2].drink == Drink::MILK;
     return true;
   }
 
-  bool checkRule16(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.color == Color::GREEN;
-        });
-    const auto nextIt = std::next(it);
-    if (it != street.end() && nextIt != street.end()) {
-      if (nextIt->color != Color::NOTHING && nextIt->color != Color::WHITE) {
-        return false;
+  bool checkRule16(const Street &street) {
+    for (size_t i = 0; i < 4;
+         ++i) { // nur bis Haus 4, da 5 kein "rechts"-Haus hat
+      if (street[i].color == Color::GREEN) {
+        // Nur prüfen, wenn das rechte Haus schon gesetzt ist
+        if (street[i + 1].color != Color::NOTHING &&
+            street[i + 1].color != Color::WHITE) {
+          return false;
+        }
       }
     }
-
     return true;
   }
 
@@ -305,17 +319,81 @@ class Quiz {
   }
 
   bool checkAllRules(Street &street) {
-    return checkRule5(street) && checkRule6(street) && checkRule7(street) &&
-           checkRule8(street) && checkRule9(street) && checkRule10(street) &&
-           checkRule11(street) && checkRule12(street) && checkRule13(street) &&
-           checkRule14(street) && checkRule15(street) && checkRule16(street) &&
-           checkRule17(street) && checkRule18(street) && checkRule19(street);
+    if (!checkRule5(street)) {
+      // std::cout << "Regel 5 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule6(street)) {
+      //  std::cout << "Regel 6 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule7(street)) {
+      // std::cout << "Regel 7 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule8(street)) {
+      // std::cout << "Regel 8 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule9(street)) {
+      // std::cout << "Regel 9 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule10(street)) {
+      // std::cout << "Regel 10 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule11(street)) {
+      // std::cout << "Regel 11 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule12(street)) {
+      // std::cout << "Regel 12 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule13(street)) {
+      // std::cout << "Regel 13 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule14(street)) {
+      // std::cout << "Regel 14 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule15(street)) {
+      // std::cout << "Regel 15 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule16(street)) {
+      // std::cout << "Regel 16 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule17(street)) {
+      // std::cout << "Regel 17 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule18(street)) {
+      // std::cout << "Regel 18 fehlgeschlagen!\n";
+      return false;
+    }
+    if (!checkRule19(street)) {
+      // std::cout << "Regel 19 fehlgeschlagen!\n";
+      return false;
+    }
+
+    return true;
   }
 
 public:
-  bool solve(Street &street, int houseIdx = 0) {
+  Quiz() {
+    street_ = {};
+    street_[0].nationality = Nationality::NORWAY;
+    street_[1].color = Color::BLUE;
+    street_[2].drink = Drink::MILK;
+  }
+
+  bool solve(int houseIdx = 0) {
     if (houseIdx == 5) {
-      return checkAllRules(street);
+      return checkAllRules(street_);
     }
 
     for (auto color : colors_)
@@ -323,25 +401,25 @@ public:
         for (auto drink : drinks_)
           for (auto cigarette : cig_)
             for (auto pet : pets_) {
-              street[houseIdx] = {color, drink, pet, nationality, cigarette};
+              street_[houseIdx] = {color, drink, pet, nationality, cigarette};
 
-              if (!checkAllUniques(street))
+              if (!checkAllUniques(street_))
                 continue;
 
-              if (!checkAllRules(street))
+              if (!checkAllRules(street_))
                 continue;
 
-              if (solve(street, houseIdx + 1))
+              if (solve(houseIdx + 1))
                 return true;
             }
 
-    street[houseIdx] = {};
+    street_[houseIdx] = {};
     return false;
   }
 
-  void printSolution(const Street &street) {
+  void printSolution() {
     int i = 1;
-    for (auto &h : street) {
+    for (auto &h : street_) {
       std::cout << "Haus " << i++ << ":\n";
       std::cout << "  Farbe: " << (int)h.color
                 << "  Nation: " << (int)h.nationality
@@ -349,5 +427,6 @@ public:
                 << "  Cigarette: " << (int)h.cigarette
                 << "  Pet: " << (int)h.pet << "\n";
     }
+    std::cout << std::endl;
   }
 };

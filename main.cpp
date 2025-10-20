@@ -1,4 +1,4 @@
-#include "quiz.h"
+#include "src/quiz.h"
 #include <iostream>
 
 int main() {
@@ -6,6 +6,6 @@ int main() {
   if (quiz.solve()) {
     quiz.prettyPrintStreet();
   } else {
-    std::cout << "Keine Lösung.\n";
+    std::cout << "No Solution.\n";
   }
 }

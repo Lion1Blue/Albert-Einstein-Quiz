@@ -32,7 +32,6 @@ bool Quiz::solve(int houseIdx) {
 
   // safe original to bracktrack
   House original = house;
-
   for (auto color : colors_) {
     if ((original.color != Color::NOTHING && color != original.color))
       continue;
@@ -90,7 +89,6 @@ bool Quiz::solve(int houseIdx) {
               continue;
             if (!checkNeighbourRules(street_))
               continue;
-
             if (solve(houseIdx + 1))
               return true;
           }

@@ -1,6 +1,7 @@
 #pragma once
 #include "enums.h"
 #include <array>
+#include <set>
 
 struct House {
   Color color = Color::NOTHING;

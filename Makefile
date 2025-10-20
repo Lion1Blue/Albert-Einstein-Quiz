@@ -1,23 +1,20 @@
-CXX := g++
-CXXFLAGS := -std=c++20 -Wall -Wextra -pedantic -O3
+CXX = g++
+CXXFLAGS = -std=c++11 -Wall -Wextra -g -O3
 
-TARGET := quiz
+SRCS = main.cpp src/quiz.cpp src/enums.cpp
+OBJS = $(SRCS:.cpp=.o)
 
-SRC := main.cpp quiz.cpp enums.cpp
-OBJ := $(SRC:.cpp=.o)
+TARGET = quiz
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJS) $(TARGET)
 
-run: all
-	./$(TARGET)
-
-.PHONY: all clean run
+.PHONY: all clean

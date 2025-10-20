@@ -141,21 +141,6 @@ void Quiz::prettyPrintStreet() {
   std::cout << "=======================================================\n";
 }
 
-template <typename T, typename Member>
-bool Quiz::checkUnique(Street &street, Member member, T nothingValue) {
-  std::set<T> values;
-  for (auto &house : street) {
-    T value = house.*member;
-    if (value == nothingValue)
-      continue;
-    if (values.find(value) != values.end())
-      return false;
-    values.insert(value);
-  }
-
-  return true;
-}
-
 bool Quiz::checkNeighbourRules(Street &street) {
   // Rule 12: Norway next to blue House
   for (int i = 0; i < 5; ++i) {

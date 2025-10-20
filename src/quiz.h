@@ -31,8 +31,6 @@ private:
   bool checkRule10(Cigarette cigarette, Drink drink);
   bool checkRule13(Color color, Cigarette cigarette);
   bool checkRule14(Cigarette cigarette, Pet pet);
-  template <typename T, typename Member>
-  bool checkUnique(Street &street, Member member, T nothingValue);
 
 private:
   Street street_;

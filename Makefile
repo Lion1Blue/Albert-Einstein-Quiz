@@ -1,6 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -g -O3
-
+CXXFLAGS = -std=c++11 -Wall -Wextra -O3
 SRCS = main.cpp src/quiz.cpp src/enums.cpp
 OBJS = $(SRCS:.cpp=.o)
 

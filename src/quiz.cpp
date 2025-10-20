@@ -35,8 +35,13 @@ bool Quiz::solve(int houseIdx) {
   for (auto color : colors_) {
     if ((original.color != Color::NOTHING && color != original.color))
       continue;
+
     if (original.color == Color::NOTHING) {
       house.color = color;
+    }
+
+    if (!checkUnique(street_, &House::color, Color::NOTHING)) {
+      continue;
     }
 
     for (auto nationality : nations_) {
@@ -48,7 +53,8 @@ bool Quiz::solve(int houseIdx) {
       }
 
       // Rule 5
-      if (checkRule5(color, nationality))
+      if (!checkUnique(street_, &House::nationality, Nationality::NOTHING) ||
+          checkRule5(color, nationality))
         continue;
 
       for (auto drink : drinks_) {
@@ -59,7 +65,8 @@ bool Quiz::solve(int houseIdx) {
         }
 
         // Rule 7, 9
-        if (checkRule7(nationality, drink) || checkRule9(color, drink))
+        if (!checkUnique(street_, &House::drink, Drink::NOTHING) ||
+            checkRule7(nationality, drink) || checkRule9(color, drink))
           continue;
 
         for (auto cigarette : cig_) {
@@ -71,7 +78,8 @@ bool Quiz::solve(int houseIdx) {
           }
 
           // Rule 8, 10, 13
-          if (checkRule8(nationality, cigarette) ||
+          if (!checkUnique(street_, &House::cigarette, Cigarette::NOTHING) ||
+              checkRule8(nationality, cigarette) ||
               checkRule10(cigarette, drink) || checkRule13(color, cigarette))
             continue;
 
@@ -82,11 +90,10 @@ bool Quiz::solve(int houseIdx) {
               house.pet = pet;
 
             // Rule 6, 14
-            if (checkRule6(nationality, pet) || checkRule14(cigarette, pet))
+            if (!checkUnique(street_, &House::pet, Pet::NOTHING) ||
+                checkRule6(nationality, pet) || checkRule14(cigarette, pet))
               continue;
 
-            if (!checkAllUniques(street_))
-              continue;
             if (!checkNeighbourRules(street_))
               continue;
             if (solve(houseIdx + 1))
@@ -121,20 +128,16 @@ void Quiz::prettyPrintStreet() {
   std::cout << "=======================================================\n";
 }
 
-bool Quiz::checkAllUniques(Street &street) {
-  for (int i = 0; i < 5; ++i) {
-    std::set<int> seen;
-
-    for (const auto &h : street) {
-      int values[5] = {static_cast<int>(h.color), static_cast<int>(h.drink),
-                       static_cast<int>(h.nationality),
-                       static_cast<int>(h.cigarette), static_cast<int>(h.pet)};
-
-      if (values[i] != -1) {
-        if (!seen.insert(values[i]).second)
-          return false; // Duplicate
-      }
-    }
+template <typename T, typename Member>
+bool Quiz::checkUnique(Street &street, Member member, T nothingValue) {
+  std::set<T> values;
+  for (auto &house : street) {
+    T value = house.*member;
+    if (value == nothingValue)
+      continue;
+    if (values.find(value) != values.end())
+      return false;
+    values.insert(value);
   }
 
   return true;

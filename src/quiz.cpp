@@ -9,10 +9,13 @@ Quiz::Quiz() {
   street_ = {};
   // Rule 11
   street_[0].nationality = Nationality::NORWAY;
-  // Rule 12
+  availableNations_.erase(Nationality::NORWAY);
+  //  Rule 12
   street_[1].color = Color::BLUE;
-  //  Rule 15
+  availableColors_.erase(Color::BLUE);
+  //   Rule 15
   street_[2].drink = Drink::MILK;
+  availableDrinks_.erase(Drink::MILK);
 }
 
 bool Quiz::solve() {
@@ -29,82 +32,92 @@ bool Quiz::solve(int houseIdx) {
     return checkNeighbourRules(street_);
 
   House &house = street_[houseIdx];
-
-  // safe original to bracktrack
   House original = house;
-  for (auto color : colors_) {
-    if ((original.color != Color::NOTHING && color != original.color))
-      continue;
 
-    if (original.color == Color::NOTHING) {
-      house.color = color;
-    }
+  auto colorsLeft = availableColors_;
+  auto nationsLeft = availableNations_;
+  auto drinksLeft = availableDrinks_;
+  auto cigsLeft = availableCigs_;
+  auto petsLeft = availablePets_;
 
-    if (!checkUnique(street_, &House::color, Color::NOTHING)) {
-      continue;
-    }
+  // Color
+  auto colorsToTry = (original.color != Color::NOTHING)
+                         ? std::set<Color>{original.color}
+                         : colorsLeft;
 
-    for (auto nationality : nations_) {
-      if (original.nationality != Nationality::NOTHING &&
-          nationality != original.nationality)
+  for (auto color : colorsToTry) {
+    house.color = color;
+
+    // Nation
+    auto nationsToTry = (original.nationality != Nationality::NOTHING)
+                            ? std::set<Nationality>{original.nationality}
+                            : nationsLeft;
+
+    for (auto nationality : nationsToTry) {
+      house.nationality = nationality;
+
+      if (checkRule5(color, nationality))
         continue;
-      if (original.nationality == Nationality::NOTHING) {
-        house.nationality = nationality;
-      }
 
-      // Rule 5
-      if (!checkUnique(street_, &House::nationality, Nationality::NOTHING) ||
-          checkRule5(color, nationality))
-        continue;
+      // Drinks
+      auto drinksToTry = (original.drink != Drink::NOTHING)
+                             ? std::set<Drink>{original.drink}
+                             : drinksLeft;
 
-      for (auto drink : drinks_) {
-        if (original.drink != Drink::NOTHING && drink != original.drink)
-          continue;
-        if (original.drink == Drink::NOTHING) {
-          house.drink = drink;
-        }
+      for (auto drink : drinksToTry) {
+        house.drink = drink;
 
-        // Rule 7, 9
-        if (!checkUnique(street_, &House::drink, Drink::NOTHING) ||
-            checkRule7(nationality, drink) || checkRule9(color, drink))
+        if (checkRule7(nationality, drink) || checkRule9(color, drink))
           continue;
 
-        for (auto cigarette : cig_) {
-          if (original.cigarette != Cigarette::NOTHING &&
-              cigarette != original.cigarette)
-            continue;
-          if (original.cigarette == Cigarette::NOTHING) {
-            house.cigarette = cigarette;
-          }
+        // Cigs
+        auto cigsToTry = (original.cigarette != Cigarette::NOTHING)
+                             ? std::set<Cigarette>{original.cigarette}
+                             : cigsLeft;
 
-          // Rule 8, 10, 13
-          if (!checkUnique(street_, &House::cigarette, Cigarette::NOTHING) ||
-              checkRule8(nationality, cigarette) ||
+        for (auto cigarette : cigsToTry) {
+          house.cigarette = cigarette;
+
+          if (checkRule8(nationality, cigarette) ||
               checkRule10(cigarette, drink) || checkRule13(color, cigarette))
             continue;
 
-          for (auto pet : pets_) {
-            if (original.pet != Pet::NOTHING && pet != original.pet)
-              continue;
-            if (original.pet == Pet::NOTHING)
-              house.pet = pet;
+          // Pets
+          auto petsToTry = (original.pet != Pet::NOTHING)
+                               ? std::set<Pet>{original.pet}
+                               : petsLeft;
 
-            // Rule 6, 14
-            if (!checkUnique(street_, &House::pet, Pet::NOTHING) ||
-                checkRule6(nationality, pet) || checkRule14(cigarette, pet))
+          for (auto pet : petsToTry) {
+            house.pet = pet;
+
+            if (checkRule6(nationality, pet) || checkRule14(cigarette, pet))
               continue;
 
             if (!checkNeighbourRules(street_))
               continue;
+
+            // remove chosen values temporarily
+            availableColors_.erase(color);
+            availableNations_.erase(nationality);
+            availableDrinks_.erase(drink);
+            availableCigs_.erase(cigarette);
+            availablePets_.erase(pet);
+
             if (solve(houseIdx + 1))
               return true;
+
+            // add values back
+            availableColors_.insert(color);
+            availableNations_.insert(nationality);
+            availableDrinks_.insert(drink);
+            availableCigs_.insert(cigarette);
+            availablePets_.insert(pet);
           }
         }
       }
     }
   }
 
-  // Backtrack: reset house to original
   house = original;
   return false;
 }

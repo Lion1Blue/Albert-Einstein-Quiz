@@ -1,25 +1,6 @@
 #pragma once
+#include "enums.h"
 #include <array>
-
-enum class Color { NOTHING = -1, RED, GREEN, BLUE, WHITE, YELLOW };
-enum class Drink { NOTHING = -1, WATER, BEER, COFFEE, TEA, MILK };
-enum class Pet { NOTHING = -1, DOG, HORSE, CAT, BIRD, FISH };
-enum class Nationality {
-  NOTHING = -1,
-  BRITAIN,
-  SWEDEN,
-  DENMARK,
-  GERMAN,
-  NORWAY
-};
-enum class Cigarette {
-  NOTHING = -1,
-  ROTHMANNS,
-  PALMAL,
-  DUNHILL,
-  WINFIELD,
-  MARLBORO
-};
 
 struct House {
   Color color = Color::NOTHING;
@@ -35,7 +16,7 @@ class Quiz {
 
 public:
   Quiz();
-  void printSolution();
+  void prettyPrintStreet();
   bool solve();
 
 private:

@@ -1,4 +1,5 @@
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <set>
 
@@ -103,17 +104,23 @@ bool Quiz::solve(int houseIdx) {
   return false;
 }
 
-void Quiz::printSolution() {
+void Quiz::prettyPrintStreet() {
+  std::cout << "\n====================== Solution =======================\n";
+  std::cout << std::left << std::setw(6) << "Haus" << std::setw(10) << "Farbe"
+            << std::setw(12) << "Nation" << std::setw(10) << "Drink"
+            << std::setw(12) << "Cigarette" << std::setw(10) << "Tier"
+            << "\n-------------------------------------------------------\n";
+
   int i = 1;
   for (auto &h : street_) {
-    std::cout << "Haus " << i++ << ":\n";
-    std::cout << "  Farbe: " << (int)h.color
-              << "  Nation: " << (int)h.nationality
-              << "  Drink: " << (int)h.drink
-              << "  Cigarette: " << (int)h.cigarette << "  Pet: " << (int)h.pet
-              << "\n";
+    std::cout << std::left << std::setw(6) << i++ << std::setw(10)
+              << enumToString(h.color) << std::setw(12)
+              << enumToString(h.nationality) << std::setw(10)
+              << enumToString(h.drink) << std::setw(12)
+              << enumToString(h.cigarette) << std::setw(10)
+              << enumToString(h.pet) << "\n";
   }
-  std::cout << std::endl;
+  std::cout << "=======================================================\n";
 }
 
 bool Quiz::checkAllUniques(Street &street) {

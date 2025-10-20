@@ -1,4 +1,4 @@
-#include "quiz.cpp"
+#include "quiz.h"
 #include <iostream>
 
 int main() {

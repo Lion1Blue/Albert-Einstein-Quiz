@@ -19,8 +19,8 @@ bool Quiz::solve() {
   const auto start = std::chrono::system_clock::now();
   bool sucess = solve(0);
   const auto end = std::chrono::system_clock::now();
-  std::chrono::duration<double> diff = end - start;
-  std::cout << "Calculation time " << diff.count() << "s" << std::endl;
+  std::chrono::duration<double, std::ratio<1, 1000>> time_ms = end - start;
+  std::cout << "Calculation time " << time_ms.count() << "ms" << std::endl;
   return sucess;
 }
 

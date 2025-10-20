@@ -51,12 +51,6 @@ class Quiz {
   std::array<Pet, 5> pets_ = {Pet::DOG, Pet::BIRD, Pet::CAT, Pet::HORSE,
                               Pet::FISH};
 
-  std::unordered_set<Color> usedColors_;
-  std::unordered_set<Nationality> usedNations_;
-  std::unordered_set<Drink> usedDrinks_;
-  std::unordered_set<Cigarette> usedCigs_;
-  std::unordered_set<Pet> usedPets_;
-
   bool checkAllUniques(Street &street) {
     return checkUnique(street, &House::color, Color::NOTHING) &&
            checkUnique(street, &House::drink, Drink::NOTHING) &&
@@ -75,314 +69,6 @@ class Quiz {
       if (values.find(value) != values.end())
         return false;
       values.insert(value);
-    }
-
-    return true;
-  }
-
-  bool checkRule5(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](House &house) {
-          return house.nationality == Nationality::BRITAIN;
-        });
-
-    if (it != street.end()) {
-      if (it->color != Color::NOTHING && it->color != Color::RED)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule6(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.nationality == Nationality::SWEDEN;
-        });
-
-    if (it != street.end()) {
-      if (it->pet != Pet::NOTHING && it->pet != Pet::DOG)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule7(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.nationality == Nationality::DENMARK;
-        });
-
-    if (it != street.end()) {
-      if (it->drink != Drink::NOTHING && it->drink != Drink::TEA)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule8(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.nationality == Nationality::GERMAN;
-        });
-
-    if (it != street.end()) {
-      if (it->cigarette != Cigarette::NOTHING &&
-          it->cigarette != Cigarette::ROTHMANNS)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule9(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.color == Color::GREEN;
-        });
-
-    if (it != street.end()) {
-      if (it->drink != Drink::NOTHING && it->drink != Drink::COFFEE)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule10(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.cigarette == Cigarette::WINFIELD;
-        });
-
-    if (it != street.end()) {
-      if (it->drink != Drink::NOTHING && it->drink != Drink::BEER)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule11(Street &street) {
-    if (street[0].nationality != Nationality::NOTHING) {
-      return street[0].nationality == Nationality::NORWAY;
-    }
-
-    return true;
-  }
-
-  bool checkRule12(const Street &street) {
-    auto it = std::find_if(street.begin(), street.end(), [](const House &h) {
-      return h.nationality == Nationality::NORWAY;
-    });
-
-    if (it == street.end())
-      return true;
-
-    int idx = std::distance(street.begin(), it);
-
-    // Prüfe nur, wenn Nachbar gesetzt ist
-    if (idx > 0) {
-      if (street[idx - 1].color != Color::NOTHING &&
-          street[idx - 1].color != Color::BLUE)
-        return false;
-    }
-    if (idx < 4) {
-      if (street[idx + 1].color != Color::NOTHING &&
-          street[idx + 1].color != Color::BLUE)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule13(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.color == Color::YELLOW;
-        });
-
-    if (it != street.end()) {
-      if (it->cigarette != Cigarette::NOTHING &&
-          it->cigarette != Cigarette::DUNHILL)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule14(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.cigarette == Cigarette::PALMAL;
-        });
-
-    if (it != street.end()) {
-      if (it->pet != Pet::NOTHING && it->pet != Pet::BIRD)
-        return false;
-    }
-
-    return true;
-  }
-
-  bool checkRule15(const Street &street) {
-    if (street[2].drink != Drink::NOTHING)
-      return street[2].drink == Drink::MILK;
-    return true;
-  }
-
-  bool checkRule16(const Street &street) {
-    for (size_t i = 0; i < 4; ++i) {
-      if (street[i].color == Color::GREEN) {
-        if (street[i + 1].color != Color::NOTHING &&
-            street[i + 1].color != Color::WHITE) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  bool checkRule17(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.cigarette == Cigarette::MARLBORO;
-        });
-
-    if (it == street.end()) {
-      return true;
-    }
-    const auto idx = std::distance(street.begin(), it);
-
-    bool hasLeft = idx > 0;
-    bool hasRight = idx < 4;
-
-    if (hasLeft && street[idx - 1].pet == Pet::CAT)
-      return true;
-    if (hasRight && street[idx + 1].pet == Pet::CAT)
-      return true;
-
-    if ((hasLeft && street[idx - 1].pet == Pet::NOTHING) ||
-        (hasRight && street[idx + 1].pet == Pet::NOTHING))
-      return true;
-
-    return false;
-  }
-
-  bool checkRule18(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.cigarette == Cigarette::MARLBORO;
-        });
-
-    if (it == street.end()) {
-      return true;
-    }
-    const auto idx = std::distance(street.begin(), it);
-
-    bool hasLeft = idx > 0;
-    bool hasRight = idx < 4;
-
-    if (hasLeft && street[idx - 1].drink == Drink::WATER)
-      return true;
-    if (hasRight && street[idx + 1].drink == Drink::WATER)
-      return true;
-
-    if ((hasLeft && street[idx - 1].drink == Drink::NOTHING) ||
-        (hasRight && street[idx + 1].drink == Drink::NOTHING))
-      return true;
-
-    return false;
-  }
-
-  bool checkRule19(Street &street) {
-    const auto it =
-        std::find_if(street.begin(), street.end(), [](const House &house) {
-          return house.pet == Pet::HORSE;
-        });
-
-    if (it == street.end()) {
-      return true;
-    }
-    const auto idx = std::distance(street.begin(), it);
-
-    bool hasLeft = idx > 0;
-    bool hasRight = idx < 4;
-
-    if (hasLeft && street[idx - 1].cigarette == Cigarette::DUNHILL)
-      return true;
-    if (hasRight && street[idx + 1].cigarette == Cigarette::DUNHILL)
-      return true;
-
-    if ((hasLeft && street[idx - 1].cigarette == Cigarette::NOTHING) ||
-        (hasRight && street[idx + 1].cigarette == Cigarette::NOTHING))
-      return true;
-
-    return false;
-  }
-
-  bool checkAllRules(Street &street) {
-    if (!checkRule5(street)) {
-      // std::cout << "Regel 5 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule6(street)) {
-      //  std::cout << "Regel 6 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule7(street)) {
-      // std::cout << "Regel 7 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule8(street)) {
-      // std::cout << "Regel 8 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule9(street)) {
-      // std::cout << "Regel 9 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule10(street)) {
-      // std::cout << "Regel 10 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule11(street)) {
-      // std::cout << "Regel 11 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule12(street)) {
-      // std::cout << "Regel 12 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule13(street)) {
-      // std::cout << "Regel 13 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule14(street)) {
-      // std::cout << "Regel 14 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule15(street)) {
-      // std::cout << "Regel 15 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule16(street)) {
-      // std::cout << "Regel 16 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule17(street)) {
-      // std::cout << "Regel 17 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule18(street)) {
-      // std::cout << "Regel 18 fehlgeschlagen!\n";
-      return false;
-    }
-    if (!checkRule19(street)) {
-      // std::cout << "Regel 19 fehlgeschlagen!\n";
-      return false;
     }
 
     return true;
@@ -457,18 +143,57 @@ class Quiz {
     return true;
   }
 
+  bool checkRule5(Color color, Nationality nationality) {
+    return (nationality == Nationality::BRITAIN && color != Color::RED) ||
+           (color == Color::RED && nationality != Nationality::BRITAIN);
+  }
+
+  bool checkRule6(Nationality nationality, Pet pet) {
+    return (nationality == Nationality::SWEDEN && pet != Pet::DOG) ||
+           (pet == Pet::DOG && nationality != Nationality::SWEDEN);
+  }
+
+  bool checkRule7(Nationality nationality, Drink drink) {
+    return (nationality == Nationality::DENMARK && drink != Drink::TEA) ||
+           (drink == Drink::TEA && nationality != Nationality::DENMARK);
+  }
+
+  bool checkRule8(Nationality nationality, Cigarette cigarette) {
+    return (nationality == Nationality::GERMAN &&
+            cigarette != Cigarette::ROTHMANNS) ||
+           (cigarette == Cigarette::ROTHMANNS &&
+            nationality != Nationality::GERMAN);
+  }
+
+  bool checkRule9(Color color, Drink drink) {
+    return (color == Color::GREEN && drink != Drink::COFFEE) ||
+           (drink == Drink::COFFEE && color != Color::GREEN);
+  }
+
+  bool checkRule10(Cigarette cigarette, Drink drink) {
+    return (cigarette == Cigarette::WINFIELD && drink != Drink::BEER) ||
+           (drink == Drink::BEER && cigarette != Cigarette::WINFIELD);
+  }
+
+  bool checkRule13(Color color, Cigarette cigarette) {
+    return (color == Color::YELLOW && cigarette != Cigarette::DUNHILL) ||
+           (cigarette == Cigarette::DUNHILL && color != Color::YELLOW);
+  }
+
+  bool checkRule14(Cigarette cigarette, Pet pet) {
+    return (cigarette == Cigarette::PALMAL && pet != Pet::BIRD) ||
+           (pet == Pet::BIRD && cigarette != Cigarette::PALMAL);
+  }
+
 public:
   Quiz() {
     street_ = {};
     // Rule 11
     street_[0].nationality = Nationality::NORWAY;
-    usedNations_.insert(Nationality::NORWAY);
     // Rule 12
     street_[1].color = Color::BLUE;
-    // usedColors_.insert(Color::BLUE);
     //  Rule 15
     street_[2].drink = Drink::MILK;
-    usedDrinks_.insert(Drink::MILK);
   }
 
   bool solve() {
@@ -476,7 +201,7 @@ public:
     bool sucess = solve(0);
     const auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end - start;
-    std::cout << "Calculation time:" << diff.count() << std::endl;
+    std::cout << "Calculation time " << diff.count() << "s" << std::endl;
     return sucess;
   }
 
@@ -490,70 +215,46 @@ public:
     House original = house;
 
     for (auto color : colors_) {
-      if (usedColors_.count(color) ||
-          (original.color != Color::NOTHING && color != original.color))
+      if ((original.color != Color::NOTHING && color != original.color))
         continue;
       if (original.color == Color::NOTHING) {
         house.color = color;
-        usedColors_.insert(color);
       }
 
       for (auto nationality : nations_) {
-        if (/*usedNations_.count(nationality) ||*/
-            original.nationality != Nationality::NOTHING &&
+        if (original.nationality != Nationality::NOTHING &&
             nationality != original.nationality)
           continue;
         if (original.nationality == Nationality::NOTHING) {
           house.nationality = nationality;
-          // usedNations_.insert(nationality);
         }
 
         // Rule 5
-        if ((nationality == Nationality::BRITAIN && color != Color::RED) ||
-            (color == Color::RED && nationality != Nationality::BRITAIN))
+        if (checkRule5(color, nationality))
           continue;
 
         for (auto drink : drinks_) {
-          if (/*usedDrinks_.count(drink) ||*/
-              original.drink != Drink::NOTHING && drink != original.drink)
+          if (original.drink != Drink::NOTHING && drink != original.drink)
             continue;
           if (original.drink == Drink::NOTHING) {
             house.drink = drink;
-            // usedDrinks_.insert(drink);
           }
 
-          // Rule 7
-          if ((nationality == Nationality::DENMARK && drink != Drink::TEA) ||
-              (drink == Drink::TEA && nationality != Nationality::DENMARK))
-            continue;
-          // Rule 9
-          if ((color == Color::GREEN && drink != Drink::COFFEE) ||
-              (drink == Drink::COFFEE && color != Color::GREEN))
+          // Rule 7, 9
+          if (checkRule7(nationality, drink) || checkRule9(color, drink))
             continue;
 
           for (auto cigarette : cig_) {
-            if (/*usedCigs_.count(cigarette) ||*/
-                original.cigarette != Cigarette::NOTHING &&
+            if (original.cigarette != Cigarette::NOTHING &&
                 cigarette != original.cigarette)
               continue;
             if (original.cigarette == Cigarette::NOTHING) {
               house.cigarette = cigarette;
-              // usedCigs_.insert(cigarette);
             }
 
-            // Rule 8
-            if ((nationality == Nationality::GERMAN &&
-                 cigarette != Cigarette::ROTHMANNS) ||
-                (cigarette == Cigarette::ROTHMANNS &&
-                 nationality != Nationality::GERMAN))
-              continue;
-            // Rule 13
-            if ((color == Color::YELLOW && cigarette != Cigarette::DUNHILL) ||
-                (cigarette == Cigarette::DUNHILL && color != Color::YELLOW))
-              continue;
-            // Rule 10
-            if ((cigarette == Cigarette::WINFIELD && drink != Drink::BEER) ||
-                (drink == Drink::BEER && cigarette != Cigarette::WINFIELD))
+            // Rule 8, 10, 13
+            if (checkRule8(nationality, cigarette) ||
+                checkRule10(cigarette, drink) || checkRule13(color, cigarette))
               continue;
 
             for (auto pet : pets_) {
@@ -562,13 +263,8 @@ public:
               if (original.pet == Pet::NOTHING)
                 house.pet = pet;
 
-              // Rule 6
-              if ((nationality == Nationality::SWEDEN && pet != Pet::DOG) ||
-                  (pet == Pet::DOG && nationality != Nationality::SWEDEN))
-                continue;
-              // Rule 14
-              if ((cigarette == Cigarette::PALMAL && pet != Pet::BIRD) ||
-                  (pet == Pet::BIRD && cigarette != Cigarette::PALMAL))
+              // Rule 6, 14
+              if (checkRule6(nationality, pet) || checkRule14(cigarette, pet))
                 continue;
 
               if (!checkAllUniques(street_))
@@ -579,13 +275,9 @@ public:
               if (solve(houseIdx + 1))
                 return true;
             }
-            // usedCigs_.erase(cigarette);
           }
-          // usedDrinks_.erase(drink);
         }
-        // usedNations_.erase(nationality);
       }
-      usedColors_.erase(color);
     }
 
     // Backtrack: reset house to original

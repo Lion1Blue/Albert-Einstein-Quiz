@@ -228,8 +228,8 @@ bool Quiz::checkRule13(Color color, Cigarette cigarette) {
 }
 
 bool Quiz::checkRule14(Cigarette cigarette, Pet pet) {
-  return !((cigarette == Cigarette::PALMAL && pet != Pet::BIRD) ||
-           (pet == Pet::BIRD && cigarette != Cigarette::PALMAL));
+  return !((cigarette == Cigarette::PALLMAL && pet != Pet::BIRD) ||
+           (pet == Pet::BIRD && cigarette != Cigarette::PALLMAL));
 }
 
 bool Quiz::checkRule16() {

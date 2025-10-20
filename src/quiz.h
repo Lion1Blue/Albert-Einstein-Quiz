@@ -43,7 +43,7 @@ private:
   std::set<Drink> availableDrinks_ = {Drink::TEA, Drink::COFFEE, Drink::MILK,
                                       Drink::BEER, Drink::WATER};
   std::set<Cigarette> availableCigs_ = {
-      Cigarette::PALMAL, Cigarette::DUNHILL, Cigarette::MARLBORO,
+      Cigarette::PALLMAL, Cigarette::DUNHILL, Cigarette::MARLBORO,
       Cigarette::WINFIELD, Cigarette::ROTHMANNS};
   std::set<Pet> availablePets_ = {Pet::DOG, Pet::BIRD, Pet::CAT, Pet::HORSE,
                                   Pet::FISH};

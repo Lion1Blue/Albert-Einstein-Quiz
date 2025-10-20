@@ -53,8 +53,8 @@ template <> std::string enumToString(Drink value) {
 
 template <> std::string enumToString(Cigarette value) {
   switch (value) {
-  case Cigarette::PALMAL:
-    return "Palmal";
+  case Cigarette::PALLMAL:
+    return "Pallmal";
   case Cigarette::ROTHMANNS:
     return "Rothmanns";
   case Cigarette::MARLBORO:

@@ -16,7 +16,7 @@ enum class Nationality {
 enum class Cigarette {
   NOTHING = -1,
   ROTHMANNS,
-  PALMAL,
+  PALLMAL,
   DUNHILL,
   WINFIELD,
   MARLBORO

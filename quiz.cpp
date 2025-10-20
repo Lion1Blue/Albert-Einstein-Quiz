@@ -383,6 +383,130 @@ class Quiz {
     return true;
   }
 
+  bool checkAllRulesOptimized(Street &street) {
+    for (int i = 0; i < 5; ++i) {
+      const auto &house = street[i];
+
+      // Regel 5: Brit -> Rot
+      if (house.nationality == Nationality::BRITAIN &&
+          house.color != Color::NOTHING && house.color != Color::RED)
+        return false;
+
+      // Regel 6: Schwede -> Hund
+      if (house.nationality == Nationality::SWEDEN &&
+          house.pet != Pet::NOTHING && house.pet != Pet::DOG)
+        return false;
+
+      // Regel 7: Däne -> Tee
+      if (house.nationality == Nationality::DENMARK &&
+          house.drink != Drink::NOTHING && house.drink != Drink::TEA)
+        return false;
+
+      // Regel 8: Deutscher -> Rothmanns
+      if (house.nationality == Nationality::GERMAN &&
+          house.cigarette != Cigarette::NOTHING &&
+          house.cigarette != Cigarette::ROTHMANNS)
+        return false;
+
+      // Regel 9: Grünes Haus -> Kaffee
+      if (house.color == Color::GREEN && house.drink != Drink::NOTHING &&
+          house.drink != Drink::COFFEE)
+        return false;
+
+      // Regel 10: Winfield -> Bier
+      if (house.cigarette == Cigarette::WINFIELD &&
+          house.drink != Drink::NOTHING && house.drink != Drink::BEER)
+        return false;
+
+      // Regel 11: 1. Haus -> Norweger
+      if (i == 0 && house.nationality != Nationality::NOTHING &&
+          house.nationality != Nationality::NORWAY)
+        return false;
+
+      // Regel 13: Gelb -> Dunhill
+      if (house.color == Color::YELLOW &&
+          house.cigarette != Cigarette::NOTHING &&
+          house.cigarette != Cigarette::DUNHILL)
+        return false;
+
+      // Regel 14: Pall Mall -> Vögel
+      if (house.cigarette == Cigarette::PALMAL && house.pet != Pet::NOTHING &&
+          house.pet != Pet::BIRD)
+        return false;
+
+      // Regel 15: Mittleres Haus -> Milch
+      if (i == 2 && house.drink != Drink::NOTHING && house.drink != Drink::MILK)
+        return false;
+    }
+
+    // Regel 12: Norweger neben blauem Haus
+    for (int i = 0; i < 5; ++i) {
+      if (street[i].nationality == Nationality::NORWAY) {
+        if (i > 0 && street[i - 1].color != Color::NOTHING &&
+            street[i - 1].color != Color::BLUE)
+          return false;
+        if (i < 4 && street[i + 1].color != Color::NOTHING &&
+            street[i + 1].color != Color::BLUE)
+          return false;
+      }
+    }
+
+    // Regel 16: Grün links von Weiß
+    for (int i = 0; i < 4; ++i) {
+      if (street[i].color == Color::GREEN) {
+        if (street[i + 1].color != Color::NOTHING &&
+            street[i + 1].color != Color::WHITE)
+          return false;
+      }
+    }
+
+    // Regel 17–19: Nachbarschaftsregeln (Marlboro / Wasser / Pferd)
+    for (int i = 0; i < 5; ++i) {
+      const auto &h = street[i];
+
+      // Marlboro neben Katze
+      if (h.cigarette == Cigarette::MARLBORO) {
+        bool valid = false;
+        if (i > 0 && (street[i - 1].pet == Pet::NOTHING ||
+                      street[i - 1].pet == Pet::CAT))
+          valid = true;
+        if (i < 4 && (street[i + 1].pet == Pet::NOTHING ||
+                      street[i + 1].pet == Pet::CAT))
+          valid = true;
+        if (!valid)
+          return false;
+      }
+
+      // Marlboro neben Wasser
+      if (h.cigarette == Cigarette::MARLBORO) {
+        bool valid = false;
+        if (i > 0 && (street[i - 1].drink == Drink::NOTHING ||
+                      street[i - 1].drink == Drink::WATER))
+          valid = true;
+        if (i < 4 && (street[i + 1].drink == Drink::NOTHING ||
+                      street[i + 1].drink == Drink::WATER))
+          valid = true;
+        if (!valid)
+          return false;
+      }
+
+      // Pferd neben Dunhill
+      if (h.pet == Pet::HORSE) {
+        bool valid = false;
+        if (i > 0 && (street[i - 1].cigarette == Cigarette::NOTHING ||
+                      street[i - 1].cigarette == Cigarette::DUNHILL))
+          valid = true;
+        if (i < 4 && (street[i + 1].cigarette == Cigarette::NOTHING ||
+                      street[i + 1].cigarette == Cigarette::DUNHILL))
+          valid = true;
+        if (!valid)
+          return false;
+      }
+    }
+
+    return true;
+  }
+
 public:
   Quiz() {
     street_ = {};
@@ -406,7 +530,7 @@ public:
               if (!checkAllUniques(street_))
                 continue;
 
-              if (!checkAllRules(street_))
+              if (!checkAllRulesOptimized(street_))
                 continue;
 
               if (solve(houseIdx + 1))

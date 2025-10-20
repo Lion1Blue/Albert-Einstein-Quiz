@@ -165,7 +165,7 @@ bool Quiz::checkNeighbourRules(Street &street) {
     }
   }
 
-  // Rule 17–19: (Marlboro / Wasser / Pferd)
+  // Rule 17–19: (Marlboro / Water / Pferd)
   for (int i = 0; i < 5; ++i) {
     const auto &h = street[i];
 

@@ -1,6 +1,6 @@
-#pragma once
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <set>
 
@@ -227,10 +227,8 @@ class Quiz {
   }
 
   bool checkRule16(const Street &street) {
-    for (size_t i = 0; i < 4;
-         ++i) { // nur bis Haus 4, da 5 kein "rechts"-Haus hat
+    for (size_t i = 0; i < 4; ++i) {
       if (street[i].color == Color::GREEN) {
-        // Nur prüfen, wenn das rechte Haus schon gesetzt ist
         if (street[i + 1].color != Color::NOTHING &&
             street[i + 1].color != Color::WHITE) {
           return false;
@@ -384,62 +382,7 @@ class Quiz {
   }
 
   bool checkAllRulesOptimized(Street &street) {
-    for (int i = 0; i < 5; ++i) {
-      const auto &house = street[i];
-
-      // Regel 5: Brit -> Rot
-      if (house.nationality == Nationality::BRITAIN &&
-          house.color != Color::NOTHING && house.color != Color::RED)
-        return false;
-
-      // Regel 6: Schwede -> Hund
-      if (house.nationality == Nationality::SWEDEN &&
-          house.pet != Pet::NOTHING && house.pet != Pet::DOG)
-        return false;
-
-      // Regel 7: Däne -> Tee
-      if (house.nationality == Nationality::DENMARK &&
-          house.drink != Drink::NOTHING && house.drink != Drink::TEA)
-        return false;
-
-      // Regel 8: Deutscher -> Rothmanns
-      if (house.nationality == Nationality::GERMAN &&
-          house.cigarette != Cigarette::NOTHING &&
-          house.cigarette != Cigarette::ROTHMANNS)
-        return false;
-
-      // Regel 9: Grünes Haus -> Kaffee
-      if (house.color == Color::GREEN && house.drink != Drink::NOTHING &&
-          house.drink != Drink::COFFEE)
-        return false;
-
-      // Regel 10: Winfield -> Bier
-      if (house.cigarette == Cigarette::WINFIELD &&
-          house.drink != Drink::NOTHING && house.drink != Drink::BEER)
-        return false;
-
-      // Regel 11: 1. Haus -> Norweger
-      if (i == 0 && house.nationality != Nationality::NOTHING &&
-          house.nationality != Nationality::NORWAY)
-        return false;
-
-      // Regel 13: Gelb -> Dunhill
-      if (house.color == Color::YELLOW &&
-          house.cigarette != Cigarette::NOTHING &&
-          house.cigarette != Cigarette::DUNHILL)
-        return false;
-
-      // Regel 14: Pall Mall -> Vögel
-      if (house.cigarette == Cigarette::PALMAL && house.pet != Pet::NOTHING &&
-          house.pet != Pet::BIRD)
-        return false;
-
-      // Regel 15: Mittleres Haus -> Milch
-      if (i == 2 && house.drink != Drink::NOTHING && house.drink != Drink::MILK)
-        return false;
-    }
-
-    // Regel 12: Norweger neben blauem Haus
+    // Rule 12: Norway next to blue House
     for (int i = 0; i < 5; ++i) {
       if (street[i].nationality == Nationality::NORWAY) {
         if (i > 0 && street[i - 1].color != Color::NOTHING &&
@@ -451,7 +394,7 @@ class Quiz {
       }
     }
 
-    // Regel 16: Grün links von Weiß
+    // Rule 16: green left to white
     for (int i = 0; i < 4; ++i) {
       if (street[i].color == Color::GREEN) {
         if (street[i + 1].color != Color::NOTHING &&
@@ -460,11 +403,11 @@ class Quiz {
       }
     }
 
-    // Regel 17–19: Nachbarschaftsregeln (Marlboro / Wasser / Pferd)
+    // Rule 17–19: (Marlboro / Wasser / Pferd)
     for (int i = 0; i < 5; ++i) {
       const auto &h = street[i];
 
-      // Marlboro neben Katze
+      // Marlboro next to Cat
       if (h.cigarette == Cigarette::MARLBORO) {
         bool valid = false;
         if (i > 0 && (street[i - 1].pet == Pet::NOTHING ||
@@ -477,7 +420,7 @@ class Quiz {
           return false;
       }
 
-      // Marlboro neben Wasser
+      // Marlboro next to Water
       if (h.cigarette == Cigarette::MARLBORO) {
         bool valid = false;
         if (i > 0 && (street[i - 1].drink == Drink::NOTHING ||
@@ -490,7 +433,7 @@ class Quiz {
           return false;
       }
 
-      // Pferd neben Dunhill
+      // Horse next to Dunhill
       if (h.pet == Pet::HORSE) {
         bool valid = false;
         if (i > 0 && (street[i - 1].cigarette == Cigarette::NOTHING ||
@@ -510,28 +453,30 @@ class Quiz {
 public:
   Quiz() {
     street_ = {};
+    // Rule 11
     street_[0].nationality = Nationality::NORWAY;
+    // Rule 12
     street_[1].color = Color::BLUE;
+    // Rule 15
     street_[2].drink = Drink::MILK;
   }
 
-  bool solve(int houseIdx = 0) {
+  bool solve() {
+    const auto start = std::chrono::system_clock::now();
+    bool sucess = solve(0);
+    const auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> diff = end - start;
+    std::cout << "Calculation time:" << diff.count() << std::endl;
+    return sucess;
+  }
+
+  bool solve(int houseIdx) {
     if (houseIdx == 5)
       return checkAllRulesOptimized(street_);
 
     House &house = street_[houseIdx];
 
-    // Wenn Haus schon vollständig durch Regeln gesetzt ist → weiter
-    if (house.color != Color::NOTHING &&
-        house.nationality != Nationality::NOTHING &&
-        house.drink != Drink::NOTHING &&
-        house.cigarette != Cigarette::NOTHING && house.pet != Pet::NOTHING) {
-      if (checkAllRulesOptimized(street_))
-        return solve(houseIdx + 1);
-      return false;
-    }
-
-    // Backup – um beim Backtrack zurückzusetzen
+    // safe original to bracktrack
     House original = house;
 
     for (auto color : colors_) {
@@ -545,10 +490,21 @@ public:
           continue;
         house.nationality = nationality;
 
+        // Rule 5
+        if (nationality == Nationality::BRITAIN && color != Color::RED)
+          continue;
+
         for (auto drink : drinks_) {
           if (original.drink != Drink::NOTHING && drink != original.drink)
             continue;
           house.drink = drink;
+
+          // Rule 7
+          if (nationality == Nationality::DENMARK && drink != Drink::TEA)
+            continue;
+          // Rule 9
+          if (color == Color::GREEN && drink != Drink::COFFEE)
+            continue;
 
           for (auto cigarette : cig_) {
             if (original.cigarette != Cigarette::NOTHING &&
@@ -556,12 +512,29 @@ public:
               continue;
             house.cigarette = cigarette;
 
+            // Rule 8
+            if (nationality == Nationality::GERMAN &&
+                cigarette != Cigarette::ROTHMANNS)
+              continue;
+            // Rule 13
+            if (color == Color::YELLOW && cigarette != Cigarette::DUNHILL)
+              continue;
+            // Rule 10
+            if (cigarette == Cigarette::WINFIELD && drink != Drink::BEER)
+              continue;
+
             for (auto pet : pets_) {
               if (original.pet != Pet::NOTHING && pet != original.pet)
                 continue;
               house.pet = pet;
 
-              // Regeln + Eindeutigkeit prüfen nach *jedem vollständigen Haus*
+              // Rule 6
+              if (nationality == Nationality::SWEDEN && pet != Pet::DOG)
+                continue;
+              // Rule 14
+              if (cigarette == Cigarette::PALMAL && pet != Pet::BIRD)
+                continue;
+
               if (!checkAllUniques(street_))
                 continue;
               if (!checkAllRulesOptimized(street_))
@@ -575,7 +548,7 @@ public:
       }
     }
 
-    // Backtrack: Haus zurücksetzen
+    // Backtrack: reset house to original
     house = original;
     return false;
   }

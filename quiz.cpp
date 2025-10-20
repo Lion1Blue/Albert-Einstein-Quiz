@@ -516,28 +516,67 @@ public:
   }
 
   bool solve(int houseIdx = 0) {
-    if (houseIdx == 5) {
-      return checkAllRules(street_);
+    if (houseIdx == 5)
+      return checkAllRulesOptimized(street_);
+
+    House &house = street_[houseIdx];
+
+    // Wenn Haus schon vollständig durch Regeln gesetzt ist → weiter
+    if (house.color != Color::NOTHING &&
+        house.nationality != Nationality::NOTHING &&
+        house.drink != Drink::NOTHING &&
+        house.cigarette != Cigarette::NOTHING && house.pet != Pet::NOTHING) {
+      if (checkAllRulesOptimized(street_))
+        return solve(houseIdx + 1);
+      return false;
     }
 
-    for (auto color : colors_)
-      for (auto nationality : nations_)
-        for (auto drink : drinks_)
-          for (auto cigarette : cig_)
-            for (auto pet : pets_) {
-              street_[houseIdx] = {color, drink, pet, nationality, cigarette};
+    // Backup – um beim Backtrack zurückzusetzen
+    House original = house;
 
+    for (auto color : colors_) {
+      if (original.color != Color::NOTHING && color != original.color)
+        continue;
+      house.color = color;
+
+      for (auto nationality : nations_) {
+        if (original.nationality != Nationality::NOTHING &&
+            nationality != original.nationality)
+          continue;
+        house.nationality = nationality;
+
+        for (auto drink : drinks_) {
+          if (original.drink != Drink::NOTHING && drink != original.drink)
+            continue;
+          house.drink = drink;
+
+          for (auto cigarette : cig_) {
+            if (original.cigarette != Cigarette::NOTHING &&
+                cigarette != original.cigarette)
+              continue;
+            house.cigarette = cigarette;
+
+            for (auto pet : pets_) {
+              if (original.pet != Pet::NOTHING && pet != original.pet)
+                continue;
+              house.pet = pet;
+
+              // Regeln + Eindeutigkeit prüfen nach *jedem vollständigen Haus*
               if (!checkAllUniques(street_))
                 continue;
-
               if (!checkAllRulesOptimized(street_))
                 continue;
 
               if (solve(houseIdx + 1))
                 return true;
             }
+          }
+        }
+      }
+    }
 
-    street_[houseIdx] = {};
+    // Backtrack: Haus zurücksetzen
+    house = original;
     return false;
   }
 

@@ -56,7 +56,7 @@ bool Quiz::solve(int houseIdx) {
     for (auto nationality : nationsToTry) {
       house.nationality = nationality;
 
-      if (!checkRule5(color, nationality) || !checkRule16())
+      if (!checkRule5(color, nationality))
         continue;
 
       // Drinks
@@ -142,6 +142,14 @@ void Quiz::prettyPrintStreet() {
 }
 
 bool Quiz::checkNeighbourRules(Street &street) {
+  // Rule 16: green left to white
+  for (int i = 0; i < 4; ++i) {
+    if (street_[i].color == Color::GREEN) {
+      if (street_[i + 1].color != Color::NOTHING &&
+          street_[i + 1].color != Color::WHITE)
+        return false;
+    }
+  }
 
   // Rule 17–19: (Marlboro / Water / Pferd)
   for (int i = 0; i < 5; ++i) {
@@ -230,16 +238,4 @@ bool Quiz::checkRule13(Color color, Cigarette cigarette) {
 bool Quiz::checkRule14(Cigarette cigarette, Pet pet) {
   return !((cigarette == Cigarette::PALLMAL && pet != Pet::BIRD) ||
            (pet == Pet::BIRD && cigarette != Cigarette::PALLMAL));
-}
-
-bool Quiz::checkRule16() {
-  // Rule 16: green left to white
-  for (int i = 0; i < 4; ++i) {
-    if (street_[i].color == Color::GREEN) {
-      if (street_[i + 1].color != Color::NOTHING &&
-          street_[i + 1].color != Color::WHITE)
-        return false;
-    }
-  }
-  return true;
 }

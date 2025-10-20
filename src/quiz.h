@@ -31,7 +31,6 @@ private:
   bool checkRule10(Cigarette cigarette, Drink drink);
   bool checkRule13(Color color, Cigarette cigarette);
   bool checkRule14(Cigarette cigarette, Pet pet);
-  bool checkRule16();
 
 private:
   Street street_;

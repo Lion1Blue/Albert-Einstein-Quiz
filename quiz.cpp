@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <set>
+#include <unordered_set>
 
 enum class Color { NOTHING = -1, RED, GREEN, BLUE, WHITE, YELLOW };
 enum class Drink { NOTHING = -1, WATER, BEER, COFFEE, TEA, MILK };
@@ -49,6 +50,12 @@ class Quiz {
                                    Cigarette::ROTHMANNS};
   std::array<Pet, 5> pets_ = {Pet::DOG, Pet::BIRD, Pet::CAT, Pet::HORSE,
                               Pet::FISH};
+
+  std::unordered_set<Color> usedColors_;
+  std::unordered_set<Nationality> usedNations_;
+  std::unordered_set<Drink> usedDrinks_;
+  std::unordered_set<Cigarette> usedCigs_;
+  std::unordered_set<Pet> usedPets_;
 
   bool checkAllUniques(Street &street) {
     return checkUnique(street, &House::color, Color::NOTHING) &&
@@ -455,10 +462,13 @@ public:
     street_ = {};
     // Rule 11
     street_[0].nationality = Nationality::NORWAY;
+    usedNations_.insert(Nationality::NORWAY);
     // Rule 12
     street_[1].color = Color::BLUE;
-    // Rule 15
+    // usedColors_.insert(Color::BLUE);
+    //  Rule 15
     street_[2].drink = Drink::MILK;
+    usedDrinks_.insert(Drink::MILK);
   }
 
   bool solve() {
@@ -480,59 +490,85 @@ public:
     House original = house;
 
     for (auto color : colors_) {
-      if (original.color != Color::NOTHING && color != original.color)
+      if (usedColors_.count(color) ||
+          (original.color != Color::NOTHING && color != original.color))
         continue;
-      house.color = color;
+      if (original.color == Color::NOTHING) {
+        house.color = color;
+        usedColors_.insert(color);
+      }
 
       for (auto nationality : nations_) {
-        if (original.nationality != Nationality::NOTHING &&
+        if (/*usedNations_.count(nationality) ||*/
+            original.nationality != Nationality::NOTHING &&
             nationality != original.nationality)
           continue;
-        house.nationality = nationality;
+        if (original.nationality == Nationality::NOTHING) {
+          house.nationality = nationality;
+          // usedNations_.insert(nationality);
+        }
 
         // Rule 5
-        if (nationality == Nationality::BRITAIN && color != Color::RED)
+        if ((nationality == Nationality::BRITAIN && color != Color::RED) ||
+            (color == Color::RED && nationality != Nationality::BRITAIN))
           continue;
 
         for (auto drink : drinks_) {
-          if (original.drink != Drink::NOTHING && drink != original.drink)
+          if (/*usedDrinks_.count(drink) ||*/
+              original.drink != Drink::NOTHING && drink != original.drink)
             continue;
-          house.drink = drink;
+          if (original.drink == Drink::NOTHING) {
+            house.drink = drink;
+            // usedDrinks_.insert(drink);
+          }
 
           // Rule 7
-          if (nationality == Nationality::DENMARK && drink != Drink::TEA)
+          if ((nationality == Nationality::DENMARK && drink != Drink::TEA) ||
+              (drink == Drink::TEA && nationality != Nationality::DENMARK))
             continue;
           // Rule 9
-          if (color == Color::GREEN && drink != Drink::COFFEE)
+          if ((color == Color::GREEN && drink != Drink::COFFEE) ||
+              (drink == Drink::COFFEE && color != Color::GREEN))
             continue;
 
           for (auto cigarette : cig_) {
-            if (original.cigarette != Cigarette::NOTHING &&
+            if (/*usedCigs_.count(cigarette) ||*/
+                original.cigarette != Cigarette::NOTHING &&
                 cigarette != original.cigarette)
               continue;
-            house.cigarette = cigarette;
+            if (original.cigarette == Cigarette::NOTHING) {
+              house.cigarette = cigarette;
+              // usedCigs_.insert(cigarette);
+            }
 
             // Rule 8
-            if (nationality == Nationality::GERMAN &&
-                cigarette != Cigarette::ROTHMANNS)
+            if ((nationality == Nationality::GERMAN &&
+                 cigarette != Cigarette::ROTHMANNS) ||
+                (cigarette == Cigarette::ROTHMANNS &&
+                 nationality != Nationality::GERMAN))
               continue;
             // Rule 13
-            if (color == Color::YELLOW && cigarette != Cigarette::DUNHILL)
+            if ((color == Color::YELLOW && cigarette != Cigarette::DUNHILL) ||
+                (cigarette == Cigarette::DUNHILL && color != Color::YELLOW))
               continue;
             // Rule 10
-            if (cigarette == Cigarette::WINFIELD && drink != Drink::BEER)
+            if ((cigarette == Cigarette::WINFIELD && drink != Drink::BEER) ||
+                (drink == Drink::BEER && cigarette != Cigarette::WINFIELD))
               continue;
 
             for (auto pet : pets_) {
               if (original.pet != Pet::NOTHING && pet != original.pet)
                 continue;
-              house.pet = pet;
+              if (original.pet == Pet::NOTHING)
+                house.pet = pet;
 
               // Rule 6
-              if (nationality == Nationality::SWEDEN && pet != Pet::DOG)
+              if ((nationality == Nationality::SWEDEN && pet != Pet::DOG) ||
+                  (pet == Pet::DOG && nationality != Nationality::SWEDEN))
                 continue;
               // Rule 14
-              if (cigarette == Cigarette::PALMAL && pet != Pet::BIRD)
+              if ((cigarette == Cigarette::PALMAL && pet != Pet::BIRD) ||
+                  (pet == Pet::BIRD && cigarette != Cigarette::PALMAL))
                 continue;
 
               if (!checkAllUniques(street_))
@@ -543,9 +579,13 @@ public:
               if (solve(houseIdx + 1))
                 return true;
             }
+            // usedCigs_.erase(cigarette);
           }
+          // usedDrinks_.erase(drink);
         }
+        // usedNations_.erase(nationality);
       }
+      usedColors_.erase(color);
     }
 
     // Backtrack: reset house to original

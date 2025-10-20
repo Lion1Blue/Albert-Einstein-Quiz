@@ -56,7 +56,7 @@ bool Quiz::solve(int houseIdx) {
     for (auto nationality : nationsToTry) {
       house.nationality = nationality;
 
-      if (checkRule5(color, nationality))
+      if (!checkRule5(color, nationality) || !checkRule16())
         continue;
 
       // Drinks
@@ -67,7 +67,7 @@ bool Quiz::solve(int houseIdx) {
       for (auto drink : drinksToTry) {
         house.drink = drink;
 
-        if (checkRule7(nationality, drink) || checkRule9(color, drink))
+        if (!checkRule7(nationality, drink) || !checkRule9(color, drink))
           continue;
 
         // Cigs
@@ -78,8 +78,8 @@ bool Quiz::solve(int houseIdx) {
         for (auto cigarette : cigsToTry) {
           house.cigarette = cigarette;
 
-          if (checkRule8(nationality, cigarette) ||
-              checkRule10(cigarette, drink) || checkRule13(color, cigarette))
+          if (!checkRule8(nationality, cigarette) ||
+              !checkRule10(cigarette, drink) || !checkRule13(color, cigarette))
             continue;
 
           // Pets
@@ -90,7 +90,7 @@ bool Quiz::solve(int houseIdx) {
           for (auto pet : petsToTry) {
             house.pet = pet;
 
-            if (checkRule6(nationality, pet) || checkRule14(cigarette, pet))
+            if (!checkRule6(nationality, pet) || !checkRule14(cigarette, pet))
               continue;
 
             if (!checkNeighbourRules(street_))
@@ -142,26 +142,6 @@ void Quiz::prettyPrintStreet() {
 }
 
 bool Quiz::checkNeighbourRules(Street &street) {
-  // Rule 12: Norway next to blue House
-  for (int i = 0; i < 5; ++i) {
-    if (street[i].nationality == Nationality::NORWAY) {
-      if (i > 0 && street[i - 1].color != Color::NOTHING &&
-          street[i - 1].color != Color::BLUE)
-        return false;
-      if (i < 4 && street[i + 1].color != Color::NOTHING &&
-          street[i + 1].color != Color::BLUE)
-        return false;
-    }
-  }
-
-  // Rule 16: green left to white
-  for (int i = 0; i < 4; ++i) {
-    if (street[i].color == Color::GREEN) {
-      if (street[i + 1].color != Color::NOTHING &&
-          street[i + 1].color != Color::WHITE)
-        return false;
-    }
-  }
 
   // Rule 17–19: (Marlboro / Water / Pferd)
   for (int i = 0; i < 5; ++i) {
@@ -211,43 +191,55 @@ bool Quiz::checkNeighbourRules(Street &street) {
 }
 
 bool Quiz::checkRule5(Color color, Nationality nationality) {
-  return (nationality == Nationality::BRITAIN && color != Color::RED) ||
-         (color == Color::RED && nationality != Nationality::BRITAIN);
+  return !((nationality == Nationality::BRITAIN && color != Color::RED) ||
+           (color == Color::RED && nationality != Nationality::BRITAIN));
 }
 
 bool Quiz::checkRule6(Nationality nationality, Pet pet) {
-  return (nationality == Nationality::SWEDEN && pet != Pet::DOG) ||
-         (pet == Pet::DOG && nationality != Nationality::SWEDEN);
+  return !((nationality == Nationality::SWEDEN && pet != Pet::DOG) ||
+           (pet == Pet::DOG && nationality != Nationality::SWEDEN));
 }
 
 bool Quiz::checkRule7(Nationality nationality, Drink drink) {
-  return (nationality == Nationality::DENMARK && drink != Drink::TEA) ||
-         (drink == Drink::TEA && nationality != Nationality::DENMARK);
+  return !((nationality == Nationality::DENMARK && drink != Drink::TEA) ||
+           (drink == Drink::TEA && nationality != Nationality::DENMARK));
 }
 
 bool Quiz::checkRule8(Nationality nationality, Cigarette cigarette) {
-  return (nationality == Nationality::GERMAN &&
-          cigarette != Cigarette::ROTHMANNS) ||
-         (cigarette == Cigarette::ROTHMANNS &&
-          nationality != Nationality::GERMAN);
+  return !((nationality == Nationality::GERMAN &&
+            cigarette != Cigarette::ROTHMANNS) ||
+           (cigarette == Cigarette::ROTHMANNS &&
+            nationality != Nationality::GERMAN));
 }
 
 bool Quiz::checkRule9(Color color, Drink drink) {
-  return (color == Color::GREEN && drink != Drink::COFFEE) ||
-         (drink == Drink::COFFEE && color != Color::GREEN);
+  return !((color == Color::GREEN && drink != Drink::COFFEE) ||
+           (drink == Drink::COFFEE && color != Color::GREEN));
 }
 
 bool Quiz::checkRule10(Cigarette cigarette, Drink drink) {
-  return (cigarette == Cigarette::WINFIELD && drink != Drink::BEER) ||
-         (drink == Drink::BEER && cigarette != Cigarette::WINFIELD);
+  return !((cigarette == Cigarette::WINFIELD && drink != Drink::BEER) ||
+           (drink == Drink::BEER && cigarette != Cigarette::WINFIELD));
 }
 
 bool Quiz::checkRule13(Color color, Cigarette cigarette) {
-  return (color == Color::YELLOW && cigarette != Cigarette::DUNHILL) ||
-         (cigarette == Cigarette::DUNHILL && color != Color::YELLOW);
+  return !((color == Color::YELLOW && cigarette != Cigarette::DUNHILL) ||
+           (cigarette == Cigarette::DUNHILL && color != Color::YELLOW));
 }
 
 bool Quiz::checkRule14(Cigarette cigarette, Pet pet) {
-  return (cigarette == Cigarette::PALMAL && pet != Pet::BIRD) ||
-         (pet == Pet::BIRD && cigarette != Cigarette::PALMAL);
+  return !((cigarette == Cigarette::PALMAL && pet != Pet::BIRD) ||
+           (pet == Pet::BIRD && cigarette != Cigarette::PALMAL));
+}
+
+bool Quiz::checkRule16() {
+  // Rule 16: green left to white
+  for (int i = 0; i < 4; ++i) {
+    if (street_[i].color == Color::GREEN) {
+      if (street_[i + 1].color != Color::NOTHING &&
+          street_[i + 1].color != Color::WHITE)
+        return false;
+    }
+  }
+  return true;
 }
